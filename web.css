@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Calendar & To-Do List</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .user-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 15px;
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .user-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .user-select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .user-select option {
+            background: #667eea;
+            color: white;
+        }
+
+        .add-user-btn, .filter-user-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 15px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .add-user-btn:hover, .filter-user-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .filter-user-btn.active {
+            background: white;
+            color: #667eea;
+        }
+
+        .view-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tab-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #667eea;
+            border-color: white;
+        }
+
+        .view-content {
+            padding: 30px;
+        }
+
+        /* List View Styles */
+        .input-section {
+            padding-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+            margin-bottom: 30px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        #taskInput {
+            flex: 1;
+            padding: 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #taskInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .datetime-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .datetime-inputs input {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        #addBtn {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        #addBtn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            text-align: center;
+            color: #666;
+        }
+
+        .stat {
+            flex: 1;
+        }
+
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border-left: 4px solid #667eea;
+            position: relative;
+        }
+
+        .task-item[data-user-color] {
+            border-left-color: var(--user-color);
+        }
+
+        .task-user-badge {
+            position: absolute;
+            top: 5px;
+            right: 40px;
+            background: var(--user-color, #667eea);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .user-colors {
+            --user-1: #667eea;
+            --user-2: #f093fb;
+            --user-3: #4facfe;
+            --user-4: #43e97b;
+            --user-5: #fa709a;
+            --user-6: #ffeaa7;
+            --user-7: #fd79a8;
+            --user-8: #6c5ce7;
+        }
+
+        .task-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .task-item.completed {
+            opacity: 0.7;
+            border-left-color: #4caf50;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            margin-right: 15px;
+            cursor: pointer;
+            accent-color: #4caf50;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-text {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .task-datetime {
+            font-size: 12px;
+            color: #666;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+            display: inline-block;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Calendar Month View Styles */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:hover {
+            background: #764ba2;
+            transform: scale(1.1);
+        }
+
+        .month-year {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .calendar-day-header {
+            background: #667eea;
+            color: white;
+            padding: 15px 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .calendar-day {
+            background: white;
+            min-height: 120px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .calendar-day:hover {
+            background: #f8f9ff;
+        }
+
+        .calendar-day.other-month {
+            background: #f5f5f5;
+            color: #ccc;
+        }
+
+        .calendar-day.today {
+            background: #e3f2fd;
+            border: 2px solid #667eea;
+        }
+
+        .calendar-day.selected {
+            background: #667eea;
+            color: white;
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .day-tasks {
+            font-size: 11px;
+        }
+
+        .task-dot {
+            width: 6px;
+            height: 6px;
+            background: #667eea;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 1px;
+        }
+
+        .task-dot.completed {
+            background: #4caf50;
+        }
+
+        .task-dot[data-user-color] {
+            background: var(--user-color);
+        }
+
+        .task-dot.completed[data-user-color] {
+            background: #4caf50;
+        }
+
+        /* Day View Styles */
+        .day-view-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9ff;
+            border-radius: 15px;
+        }
+
+        .day-date {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .hour-grid {
+            display: grid;
+            grid-template-columns: 80px 1fr;
+            gap: 1px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .hour-label {
+            background: #667eea;
+            color: white;
+            padding: 20px 10px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .hour-slot {
+            background: white;
+            min-height: 60px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .hour-slot:hover {
+            background: #f8f9ff;
+        }
+
+        .hour-task {
+            background: #667eea;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin: 2px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .hour-task[data-user-color] {
+            background: var(--user-color);
+        }
+
+        .hour-task:hover {
+            transform: scale(1.02);
+        }
+
+        .hour-task.completed {
+            background: #4caf50 !important;
+            text-decoration: line-through;
+        }
+
+        .hour-task-user {
+            font-size: 9px;
+            opacity: 0.8;
+            margin-left: 5px;
+        }
+
+        .back-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: #764ba2;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #888;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .calendar-grid {
+                font-size: 12px;
+            }
+            
+            .calendar-day {
+                min-height: 80px;
+                padding: 5px;
+            }
+            
+            .hour-grid {
+                grid-template-columns: 60px 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📅 My Calendar & Tasks</h1>
+            <p>Organize your time and get things done!</p>
+            
+            <div class="user-section">
+                <div class="user-info">
+                    <div class="user-avatar" id="currentUserAvatar">U</div>
+                    <div>
+                        <div style="font-weight: bold;" id="currentUserName">User 1</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Current User</div>
+                    </div>
+                </div>
+                <div class="user-controls">
+                    <select class="user-select" id="userSelect">
+                        <option value="1">User 1</option>
+                    </select>
+                    <button class="add-user-btn" onclick="app.addNewUser()">+ Add User</button>
+                    <button class="filter-user-btn" id="filterToggle" onclick="app.toggleUserFilter()">Show All</button>
+                </div>
+            </div>
+            
+            <div class="view-tabs">
+                <button class="tab-btn active" data-view="list">📋 List</button>
+                <button class="tab-btn" data-view="month">📅 Month</button>
+                <button class="tab-btn" data-view="day">🕐 Day</button>
+            </div>
+        </div>
+
+        <!-- List View -->
+        <div id="listView" class="view-content">
+            <div class="input-section">
+                <div class="input-container">
+                    <input type="text" id="taskInput" placeholder="What needs to be done?" maxlength="100">
+                    <button id="addBtn">Add Task</button>
+                </div>
+                
+                <div class="datetime-inputs">
+                    <input type="date" id="taskDate">
+                    <input type="time" id="taskTime">
+                </div>
+                
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="totalTasks">0</div>
+                        <div>Total Tasks</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="completedTasks">0</div>
+                        <div>Completed</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="pendingTasks">0</div>
+                        <div>Pending</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-list" id="taskList">
+                <div class="empty-state">
+                    <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
+                    <h3>No tasks yet</h3>
+                    <p>Add a task above to get started!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Month View -->
+        <div id="monthView" class="view-content hidden">
+            <div class="calendar-header">
+                <div class="calendar-nav">
+                    <button class="nav-btn" id="prevMonth">‹</button>
+                    <div class="month-year" id="monthYear"></div>
+                    <button class="nav-btn" id="nextMonth">›</button>
+                </div>
+                <button class="back-btn" onclick="app.showView('list')">Back to List</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+        </div>
+
+        <!-- Day View -->
+        <div id="dayView" class="view-content hidden">
+            <div class="day-view-header">
+                <div class="day-date" id="dayDate"></div>
+                <div>
+                    <button class="back-btn" onclick="app.showView('month')">Back to Month</button>
+                    <button class="back-btn" onclick="app.showView('list')" style="margin-left: 10px;">Back to List</button>
+                </div>
+            </div>
+            <div class="hour-grid" id="hourGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        class CalendarApp {
+            constructor() {
+                this.tasks = [];
+                this.users = [{ id: 1, name: 'User 1', color: '#667eea' }];
+                this.currentUserId = 1;
+                this.filterByCurrentUser = false;
+                this.currentView = 'list';
+                this.currentDate = new Date();
+                this.selectedDate = new Date();
+                this.taskIdCounter = 1;
+                this.userIdCounter = 2;
+                
+                this.userColors = [
+                    '#667eea', '#f093fb', '#4facfe', '#43e97b', 
+                    '#fa709a', '#ffeaa7', '#fd79a8', '#6c5ce7'
+                ];
+                
+                this.initEventListeners();
+                this.initDateInputs();
+                this.updateUserInterface();
+                this.updateStats();
+                this.renderMonthView();
+            }
+
+            initEventListeners() {
+                // Tab switching
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.showView(e.target.dataset.view);
+                    });
+                });
+
+                // Task management
+                document.getElementById('addBtn').addEventListener('click', () => this.addTask());
+                document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.addTask();
+                });
+
+                // Calendar navigation
+                document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
+                document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+
+                // User management
+                document.getElementById('userSelect').addEventListener('change', (e) => {
+                    this.switchUser(parseInt(e.target.value));
+                });
+            }
+
+            initDateInputs() {
+                const today = new Date();
+                const dateStr = today.toISOString().split('T')[0];
+                const timeStr = today.toTimeString().slice(0, 5);
+                
+                document.getElementById('taskDate').value = dateStr;
+                document.getElementById('taskTime').value = timeStr;
+            }
+
+            showView(view) {
+                // Update tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+                // Update views
+                document.querySelectorAll('.view-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                this.currentView = view;
+                
+                switch(view) {
+                    case 'list':
+                        document.getElementById('listView').classList.remove('hidden');
+                        this.renderTaskList();
+                        break;
+                    case 'month':
+                        document.getElementById('monthView').classList.remove('hidden');
+                        this.renderMonthView();
+                        break;
+                    case 'day':
+                        document.getElementById('dayView').classList.remove('hidden');
+                        this.renderDayView();
+                        break;
+                }
+            }
+
+            addTask() {
+                const taskInput = document.getElementById('taskInput');
+                const dateInput = document.getElementById('taskDate');
+                const timeInput = document.getElementById('taskTime');
+                
+                const text = taskInput.value.trim();
+                if (text === '') {
+                    taskInput.focus();
+                    return;
+                }
+
+                const currentUser = this.users.find(u => u.id === this.currentUserId);
+                const task = {
+                    id: this.taskIdCounter++,
+                    text: text,
+                    completed: false,
+                    date: dateInput.value,
+                    time: timeInput.value,
+                    datetime: new Date(`${dateInput.value}T${timeInput.value}`),
+                    userId: this.currentUserId,
+                    userName: currentUser.name,
+                    userColor: currentUser.color,
+                    createdAt: new Date()
+                };
+
+                this.tasks.push(task);
+                taskInput.value = '';
+                
+                this.updateStats();
+                this.renderCurrentView();
+            }
+
+            toggleTask(id) {
+                const task = this.tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    this.updateStats();
+                    this.renderCurrentView();
+                }
+            }
+
+            deleteTask(id) {
+                this.tasks = this.tasks.filter(t => t.id !== id);
+                this.updateStats();
+                this.renderCurrentView();
+            }
+
+            addNewUser() {
+                const name = prompt('Enter user name:');
+                if (name && name.trim()) {
+                    const newUser = {
+                        id: this.userIdCounter++,
+                        name: name.trim(),
+                        color: this.userColors[(this.users.length) % this.userColors.length]
+                    };
+                    this.users.push(newUser);
+                    this.updateUserInterface();
+                    this.switchUser(newUser.id);
+                }
+            }
+
+            switchUser(userId) {
+                this.currentUserId = userId;
+                this.updateUserInterface();
+                this.updateStats();
+                this.renderCurrentView();
+            }
+
+            toggleUserFilter() {
+                this.filterByCurrentUser = !this.filterByCurrentUser;
+                const filterBtn = document.getElementById('filterToggle');
+                filterBtn.textContent = this.filterByCurrentUser ? 'Show Mine' : 'Show All';
+                filterBtn.classList.toggle('active', this.filterByCurrentUser);
+                this.updateStats();
+                this.renderCurrentView();
+            }
+
+            updateUserInterface() {
+                const currentUser = this.users.find(u => u.id === this.currentUserId);
+                const userSelect = document.getElementById('userSelect');
+                const userAvatar = document.getElementById('currentUserAvatar');
+                const userName = document.getElementById('currentUserName');
+
+                // Update user selector
+                userSelect.innerHTML = this.users.map(user => 
+                    `<option value="${user.id}" ${user.id === this.currentUserId ? 'selected' : ''}>
+                        ${user.name}
+                    </option>`
+                ).join('');
+
+                // Update current user display
+                if (currentUser) {
+                    userAvatar.textContent = currentUser.name.charAt(0).toUpperCase();
+                    userAvatar.style.backgroundColor = currentUser.color;
+                    userAvatar.style.color = 'white';
+                    userName.textContent = currentUser.name;
+                }
+            }
+
+            getVisibleTasks() {
+                if (this.filterByCurrentUser) {
+                    return this.tasks.filter(task => task.userId === this.currentUserId);
+                }
+                return this.tasks;
+            }
+
+            renderCurrentView() {
+                switch(this.currentView) {
+                    case 'list':
+                        this.renderTaskList();
+                        break;
+                    case 'month':
+                        this.renderMonthView();
+                        break;
+                    case 'day':
+                        this.renderDayView();
+                        break;
+                }
+            }
+
+            renderTaskList() {
+                const taskList = document.getElementById('taskList');
+                const visibleTasks = this.getVisibleTasks();
+                
+                if (visibleTasks.length === 0) {
+                    const message = this.filterByCurrentUser ? 
+                        `No tasks for ${this.users.find(u => u.id === this.currentUserId)?.name}` :
+                        'No tasks yet';
+                    taskList.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 48px; margin-bottom: 20px;">📝</div>
+                            <h3>${message}</h3>
+                            <p>Add a task above to get started!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                // Sort tasks by datetime
+                const sortedTasks = [...visibleTasks].sort((a, b) => a.datetime - b.datetime);
+
+                taskList.innerHTML = sortedTasks.map(task => `
+                    <div class="task-item ${task.completed ? 'completed' : ''}" 
+                         data-user-color style="--user-color: ${task.userColor}">
+                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} 
+                               onchange="app.toggleTask(${task.id})">
+                        <div class="task-content">
+                            <div class="task-text">${this.escapeHtml(task.text)}</div>
+                            <div class="task-datetime">
+                                📅 ${this.formatDate(task.datetime)} ⏰ ${this.formatTime(task.datetime)}
+                            </div>
+                        </div>
+                        <div class="task-user-badge" style="--user-color: ${task.userColor}">
+                            ${task.userName}
+                        </div>
+                        <button class="delete-btn" onclick="app.deleteTask(${task.id})" title="Delete task">×</button>
+                    </div>
+                `).join('');
+            }
+
+            renderMonthView() {
+                const monthYear = document.getElementById('monthYear');
+                const calendarGrid = document.getElementById('calendarGrid');
+                
+                monthYear.textContent = this.currentDate.toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+
+                const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1);
+                const lastDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+                const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                let gridHTML = dayHeaders.map(day => 
+                    `<div class="calendar-day-header">${day}</div>`
+                ).join('');
+
+                const today = new Date();
+                for (let i = 0; i < 42; i++) {
+                    const date = new Date(startDate);
+                    date.setDate(startDate.getDate() + i);
+                    
+                    const dayTasks = this.getTasksForDate(date);
+                    const isToday = this.isSameDate(date, today);
+                    const isCurrentMonth = date.getMonth() === this.currentDate.getMonth();
+                    
+                    let dayClass = 'calendar-day';
+                    if (!isCurrentMonth) dayClass += ' other-month';
+                    if (isToday) dayClass += ' today';
+
+                    const taskDots = dayTasks.slice(0, 4).map(task => 
+                        `<span class="task-dot ${task.completed ? 'completed' : ''}" 
+                               data-user-color style="--user-color: ${task.userColor}"></span>`
+                    ).join('');
+
+                    const moreText = dayTasks.length > 4 ? `<br><small>+${dayTasks.length - 4} more</small>` : '';
+
+                    gridHTML += `
+                        <div class="${dayClass}" onclick="app.selectDate('${date.toISOString()}')">
+                            <div class="day-number">${date.getDate()}</div>
+                            <div class="day-tasks">${taskDots}${moreText}</div>
+                        </div>
+                    `;
+                }
+
+                calendarGrid.innerHTML = gridHTML;
+            }
+
+            renderDayView() {
+                const dayDate = document.getElementById('dayDate');
+                const hourGrid = document.getElementById('hourGrid');
+                
+                dayDate.textContent = this.selectedDate.toLocaleDateString('en-US', { 
+                    weekday: 'long',
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
+
+                const dayTasks = this.getTasksForDate(this.selectedDate);
+                
+                let gridHTML = '';
+                for (let hour = 0; hour < 24; hour++) {
+                    const hourStr = hour.toString().padStart(2, '0') + ':00';
+                    const hourTasks = dayTasks.filter(task => {
+                        const taskHour = task.datetime.getHours();
+                        return taskHour === hour;
+                    });
+
+                    gridHTML += `
+                        <div class="hour-label">${hourStr}</div>
+                        <div class="hour-slot">
+                            ${hourTasks.map(task => `
+                                <div class="hour-task ${task.completed ? 'completed' : ''}" 
+                                     data-user-color style="--user-color: ${task.userColor}"
+                                     onclick="app.toggleTask(${task.id})">
+                                    ${this.escapeHtml(task.text)}
+                                    <small>(${this.formatTime(task.datetime)})</small>
+                                    <span class="hour-task-user">${task.userName}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+                }
+
+                hourGrid.innerHTML = gridHTML;
+            }
+
+            selectDate(dateStr) {
+                this.selectedDate = new Date(dateStr);
+                this.showView('day');
+            }
+
+            changeMonth(delta) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + delta);
+                this.renderMonthView();
+            }
+
+            getTasksForDate(date) {
+                const visibleTasks = this.getVisibleTasks();
+                return visibleTasks.filter(task => this.isSameDate(task.datetime, date));
+            }
+
+            isSameDate(date1, date2) {
+                return date1.toDateString() === date2.toDateString();
+            }
+
+            updateStats() {
+                const visibleTasks = this.getVisibleTasks();
+                const total = visibleTasks.length;
+                const completed = visibleTasks.filter(t => t.completed).length;
+                const pending = total - completed;
+
+                document.getElementById('totalTasks').textContent = total;
+                document.getElementById('completedTasks').textContent = completed;
+                document.getElementById('pendingTasks').textContent = pending;
+            }
+
+            formatDate(date) {
+                return date.toLocaleDateString('en-US', { 
+                    month: 'short', 
+                    day: 'numeric' 
+                });
+            }
+
+            formatTime(date) {
+                return date.toLocaleTimeString('en-US', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+
+            escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        }
+
+        // Initialize the app
+        const app = new CalendarApp();
+    </script>
+</body>
+</html>
